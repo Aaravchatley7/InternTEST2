@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+python-multipart
+
+langchain
+langchain-community
+langchain-huggingface
+
+faiss-cpu
+sentence-transformers
+
+pypdf
+
+requests
+python-dotenv
