@@ -1,85 +1,170 @@
-# Confidence-Aware RAG API with Observability
-
-A Retrieval-Augmented Generation (RAG) API built with FastAPI that not only answers questions from uploaded PDF documents but also provides confidence scoring, explainability, and observability metrics.
+# Confidence-Aware RAG API v2
 
 ## Overview
 
-Traditional AI systems often return answers without indicating how reliable they are. This project enhances a standard RAG pipeline by introducing:
+Confidence-Aware RAG API v2 is a Retrieval-Augmented Generation (RAG) system designed with a strong focus on reliability, observability, maintainability, and engineering discipline.
+
+Unlike traditional AI systems that only return answers, this project provides:
 
 * Confidence Scoring
-* Explainability
+* Confidence Reasoning
 * Source Attribution
 * Request Tracing
 * Latency Monitoring
-* API Observability
+* Metrics Collection
+* Structured Logging
 
-The system allows users to upload PDF documents, ask questions, and receive answers along with metadata that explains how the answer was generated and how trustworthy it is.
+The goal is to make AI outputs more transparent, measurable, and easier to maintain.
 
 ---
 
-## Features
+# Problem Statement
 
-### PDF Document Upload
+Most AI systems return answers without indicating:
 
-* Upload PDF documents through an API endpoint.
-* Documents are automatically parsed and chunked.
-* Chunks are indexed into a FAISS vector database.
+* Why the answer was generated
+* How reliable the answer is
+* What sources were used
+* Whether the system is performing correctly
 
-### Retrieval-Augmented Generation (RAG)
+This project addresses those challenges by combining Retrieval-Augmented Generation (RAG) with Confidence Engine V2 and Observability Hardening.
 
-* Retrieves the most relevant chunks for a user query.
-* Uses semantic search with sentence embeddings.
-* Generates answers using OpenRouter LLMs.
+---
 
-### Confidence Scoring
+# Key Features
 
-Each response includes:
+## PDF Question Answering
 
-* Confidence Score (0–1)
-* Confidence Level (High / Medium / Low)
+Users can upload PDF documents and ask questions about the content.
 
-Confidence is calculated using:
+The system:
+
+1. Extracts PDF text
+2. Splits content into chunks
+3. Creates vector embeddings
+4. Retrieves relevant chunks
+5. Generates answers using OpenRouter
+
+---
+
+## Confidence Engine V2
+
+Confidence is no longer a simple score.
+
+The system evaluates:
 
 * Retrieval similarity
 * Source coverage
-* Answer quality heuristics
+* Answer completeness
+* Supporting evidence count
 
-### Explainability
+Example:
 
-Every response includes:
+```json
+{
+  "score": 0.89,
+  "level": "High",
+  "reasons": [
+    "High retrieval similarity",
+    "Multiple supporting sources",
+    "Complete answer generated"
+  ]
+}
+```
 
-* Number of retrieved chunks
-* Average similarity score
-* Source pages used
+This improves transparency and helps users understand answer reliability.
 
-### Observability
+---
+
+## Observability Hardening
 
 Every request generates:
 
 * Trace ID
-* Latency measurement
-* Request statistics
+* Latency metrics
+* Structured logs
 
-### Metrics Endpoint
+Example:
 
-Track:
+```json
+{
+  "trace_id": "f82a7d7f",
+  "latency_ms": 412
+}
+```
 
-* Total requests
-* Average confidence
-* Average latency
-* Error count
+Logs are stored in:
+
+```text
+logs/app.log
+```
+
+This makes troubleshooting and monitoring easier.
 
 ---
 
-## Architecture
+## Metrics Endpoint
+
+The system continuously tracks:
+
+* Total requests
+* Error count
+* Average latency
+* Average confidence
+
+Available at:
+
+```text
+GET /metrics
+```
+
+---
+
+## Health Monitoring
+
+Health endpoint:
+
+```text
+GET /health
+```
+
+Response:
+
+```json
+{
+  "status": "healthy"
+}
+```
+
+---
+
+## Version Tracking
+
+Version endpoint:
+
+```text
+GET /version
+```
+
+Response:
+
+```json
+{
+  "version": "2.0.0"
+}
+```
+
+---
+
+# Architecture
 
 PDF Upload
 ↓
-Document Parsing
+Document Processing
 ↓
 Chunking
 ↓
-Embeddings (all-MiniLM-L6-v2)
+Embeddings
 ↓
 FAISS Vector Store
 ↓
@@ -87,7 +172,7 @@ Retriever
 ↓
 OpenRouter LLM
 ↓
-Confidence Scoring
+Confidence Engine V2
 ↓
 Observability Layer
 ↓
@@ -95,109 +180,76 @@ API Response
 
 ---
 
-## Tech Stack
-
-### Backend
-
-* FastAPI
-* Uvicorn
-
-### Retrieval Layer
-
-* LangChain
-* FAISS
-* HuggingFace Embeddings
-
-### LLM
-
-* OpenRouter API (Key from OpenRouter website)
-* Mistral / GPT Models
-
-### Document Processing
-
-* PyPDF
-
-### Utilities
-
-* Python Dotenv
-* Requests
-
----
-
-## Project Structure
+# Project Structure
 
 ```text
-confidence_rag_api/
+confidence-rag-api/
 │
 ├── app.py
-├── requirements.txt
-├── .env
+├── rag.py
+├── confidence.py
+├── observability.py
+│
+├── tests/
+│   ├── test_confidence.py
+│   └── test_observability.py
+│
 ├── uploads/
-└── vectorstore/
+├── vectorstore/
+├── logs/
+│
+├── requirements.txt
+├── README.md
+├── .env.example
+└── .gitignore
 ```
 
 ---
 
-## Installation
+# V1 vs V2 Improvements
 
-### Clone Repository
+| Feature                | V1     | V2       |
+| ---------------------- | ------ | -------- |
+| RAG Question Answering | ✓      | ✓        |
+| Confidence Score       | ✓      | ✓        |
+| Confidence Reasons     | ✗      | ✓        |
+| Structured Logging     | ✗      | ✓        |
+| Health Endpoint        | ✗      | ✓        |
+| Version Endpoint       | ✗      | ✓        |
+| Observability Layer    | Basic  | Hardened |
+| Modular Architecture   | ✗      | ✓        |
+| Test Coverage          | ✗      | ✓        |
+| Continuation Quality   | Medium | High     |
 
-```bash
-git clone <your-repository-url>
-cd confidence_rag_api
-```
+---
 
-### Create Virtual Environment
+# Running the Project
 
-```bash
-python -m venv venv
-```
-
-Activate:
-
-Windows
-
-```bash
-venv\Scripts\activate
-```
-
-Linux / Mac
-
-```bash
-source venv/bin/activate
-```
-
-### Install Dependencies
+Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
----
+Create:
 
-## Environment Variables
-
-Create a `.env` file:
-
-```env
-OPENROUTER_API_KEY=your_openrouter_api_key
+```text
+.env
 ```
 
----
+Add:
 
-## Run Application
+```env
+OPENROUTER_API_KEY=your_key_here
+```
+
+Run:
 
 ```bash
 uvicorn app:app --reload
 ```
 
-Application:
-
-```text
-http://127.0.0.1:8000
-```
-
-Swagger Documentation:
+Swagger UI:
 
 ```text
 http://127.0.0.1:8000/docs
@@ -205,151 +257,32 @@ http://127.0.0.1:8000/docs
 
 ---
 
-## API Endpoints
+# Testing
 
-### Upload PDF
+Run:
 
-**POST** `/upload`
-
-Upload a PDF document and create vector embeddings.
-
-Response:
-
-```json
-{
-  "status": "success",
-  "file": "sample.pdf",
-  "chunks_created": 42
-}
+```bash
+pytest
 ```
 
----
+The test suite validates:
 
-### Ask Question
-
-**POST** `/ask`
-
-Parameters:
-
-```text
-question=What is conditional probability?
-```
-
-Response:
-
-```json
-{
-  "answer": "Conditional probability is the probability of an event occurring given that another event has already occurred.",
-  "confidence_score": 0.89,
-  "confidence_level": "High",
-  "explanation": {
-    "retrieved_chunks": 4,
-    "average_similarity": 0.83
-  },
-  "sources": [
-    {
-      "page": 12
-    }
-  ],
-  "observability": {
-    "trace_id": "f82a7d7f-5e2d-4d95-b03c-123456789abc",
-    "latency_ms": 532
-  }
-}
-```
+* Confidence Engine V2
+* Confidence Levels
+* Trace Generation
+* Latency Tracking
+* Metrics Collection
 
 ---
 
-### Metrics
+# Engineering Goals
 
-**GET** `/metrics`
+This project prioritizes:
 
-Response:
+* Correctness
+* Observability
+* Maintainability
+* Continuation Quality
+* Testing Discipline
 
-```json
-{
-  "total_requests": 15,
-  "total_errors": 0,
-  "average_latency_ms": 420,
-  "average_confidence": 0.86
-}
-```
-
----
-
-## Confidence Scoring
-
-The confidence score is calculated using:
-
-```text
-Confidence =
-(Avg Similarity × 0.5)
-+
-(Answer Quality × 0.2)
-+
-(Source Coverage × 0.3)
-```
-
-Where:
-
-* Avg Similarity = Average retrieval similarity score
-* Answer Quality = Heuristic based on answer completeness
-* Source Coverage = Number of supporting chunks retrieved
-
-Confidence Levels:
-
-| Score Range | Level  |
-| ----------- | ------ |
-| ≥ 0.85      | High   |
-| 0.65 – 0.84 | Medium |
-| < 0.65      | Low    |
-
----
-
-## Observability Metrics
-
-The system tracks:
-
-* Request Count
-* Error Count
-* Average Latency
-* Average Confidence
-* Trace IDs
-
-These metrics help monitor system performance and answer reliability.
-
----
-
-## Example Workflow
-
-1. Upload a PDF document.
-2. Ask a question related to the document.
-3. View:
-
-   * Generated answer
-   * Confidence score
-   * Confidence level
-   * Source pages
-   * Latency
-   * Trace ID
-4. Monitor usage through `/metrics`.
-
----
-
-## Future Improvements
-
-* Prometheus Integration
-* Grafana Dashboard
-* Multi-document Support
-* Persistent Vector Storage
-* Advanced Confidence Models
-* User Authentication
-* Streaming Responses
-
----
-
-## Author
-
-**Aarav Chatley**
-
-Applied AI Engineering Project – Confidence Scoring & Observability API Layer
+The repository is structured so that a new developer can understand, run, test, and extend the system with minimal onboarding effort.

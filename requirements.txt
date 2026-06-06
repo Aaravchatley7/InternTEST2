@@ -13,3 +13,4 @@ pypdf
 
 requests
 python-dotenv
+pytest
